@@ -85,8 +85,8 @@ int main(int argc, char** argv)
                         for (unsigned int jFil = 0; jFil < filterNY; jFil++)
                         {
 
-                            const int iNeighbour = iPix - 2 + iFil;
-                            const int jNeighbour = jPix - 2 + jFil;
+                            const int iNeighbour = iPix - (filterNX - 1) / 2 + iFil;
+                            const int jNeighbour = jPix - (filterNY - 1) / 2 + jFil;
 
                             // Convert the the 2D index to 1D one.
                             const int imgIdx = iNeighbour + NX * jNeighbour;
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
             {
                 std::ofstream fileStream;
                 char fileName[1024];
-                sprintf(fileName, "c_fftw_2D_C2C__%dx%d.check", NX, NY);
+                sprintf(fileName, "c_Filter_2D_CPU__%dx%d.check", NX, NY);
                 fileStream.open(fileName);
 
                 unsigned int index = 0;
