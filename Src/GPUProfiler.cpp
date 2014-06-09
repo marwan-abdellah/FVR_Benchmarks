@@ -1,0 +1,164 @@
+#include "GPUProfiler.h"
+#include <iostream>
+
+static std::stringstream logStream;
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::Profiler
+/// \param function
+///
+///////////////////////////////////////////////////////////////////////////////
+GPUProfiler::GPUProfiler(const std::string function, char *fileName)
+{
+    _fileName = fileName;
+
+    // Set the function name
+    SetFunctionName(function);
+
+    cudaEventCreate(&this->_start);
+    cudaEventCreate(&this->_end);
+
+    // Start the timer
+    Start();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::Start
+///
+///////////////////////////////////////////////////////////////////////////////
+void GPUProfiler::Start()
+{
+    cudaEventRecord(this->_start, 0);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::Profile
+///
+///////////////////////////////////////////////////////////////////////////////
+void GPUProfiler::Profile()
+{
+    cudaEventElapsedTime
+            (&this->_profileMilliSeconds, this->_start, this->_end);
+
+    // Time in seconds, milli-seconds and micro-seconds
+    this->_timeMicroSeconds = double(this->_profileMilliSeconds) * 1E3;
+    this->_timeMilliSeconds = double(this->_profileMilliSeconds);
+    this->_timeSeconds  = double(this->_profileMilliSeconds) * 1E-3;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::LogProfile
+///
+///////////////////////////////////////////////////////////////////////////////
+void GPUProfiler::LogProfile()
+{
+    logStream << GetFunctionName() << " "
+               << "us[" << this->_timeMicroSeconds << "] "
+               << "ms[" << this->_timeMilliSeconds << "] "
+               << "s["  << this->_timeSeconds << "]" << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::End
+///
+///////////////////////////////////////////////////////////////////////////////
+void GPUProfiler::End()
+{
+    // End the timer
+    cudaEventRecord(this->_end, 0);
+    cudaEventSynchronize(this->_end);
+
+    // Profile
+    Profile();
+
+    // Add profiling data to the log
+    LogProfile();
+
+    // Write the file to the disk
+    WriteProfileToFile(this->_fileName);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::GetTimeInMicrosSeconds
+/// \return
+///
+///////////////////////////////////////////////////////////////////////////////
+long double GPUProfiler::GetTimeInMicrosSeconds(void) const
+{
+    return this->_timeMicroSeconds;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::GetTimeInMilliSeconds
+/// \return
+///
+///////////////////////////////////////////////////////////////////////////////
+long double GPUProfiler::GetTimeInMilliSeconds(void) const
+{
+    return this->_timeMilliSeconds;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::GetTimeInSeconds
+/// \return
+///
+///////////////////////////////////////////////////////////////////////////////
+long double GPUProfiler::GetTimeInSeconds(void) const
+{
+    return this->_timeSeconds;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::GetFunctionName
+/// \return
+///
+///////////////////////////////////////////////////////////////////////////////
+std::string GPUProfiler::GetFunctionName(void) const
+{
+    return this->_functionName;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::WriteProfileToFile
+/// \param fileName
+///
+///////////////////////////////////////////////////////////////////////////////
+void GPUProfiler::WriteProfileToFile(char* fileName)
+{
+    std::cout << fileName << std::endl;
+
+    std::ofstream fileStream;
+
+    fileStream.open(fileName);
+    fileStream << logStream.rdbuf();
+    fileStream.close();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// \brief Profiler::SetFunctionName
+/// \param functionName
+///
+///////////////////////////////////////////////////////////////////////////////
+void GPUProfiler::SetFunctionName(std::string functionName)
+{
+    this->_functionName = functionName;
+}

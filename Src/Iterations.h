@@ -1,0 +1,13 @@
+#ifndef ITERATIONS_H
+#define ITERATIONS_H
+
+#define NUM_ITERATIONS (10)
+#define POWER_OF_TWO_INCREMENT (N*=2)
+#define PLUS_ONE_INCREMENT (N+=1)
+#define INCREMENT (POWER_OF_TWO_INCREMENT)
+#define INITIAL_SIZE_2D (64)
+#define INITIAL_SIZE_3D (4)
+#define LIMIT_2D (8192)
+#define LIMIT_3D (512)
+
+#endif // ITERATIONS_H
