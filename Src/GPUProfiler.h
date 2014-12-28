@@ -43,8 +43,6 @@ private:
     std::string _functionName;
     char* _fileName;
 
-
-
 private:
     void SetFunctionName(std::string functionName);
 };
@@ -54,6 +52,6 @@ private:
 
 
 #define END_GPU_PROFILING( )                                                    \
-    gpuProfile.End()
+    gpuProfile.End();
 
 #endif // PROFILER_H
